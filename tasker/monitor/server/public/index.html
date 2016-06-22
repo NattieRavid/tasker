@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="TaskerDashboard">
+
+<head>
+    <title>Tasker Statistics Dashboard</title>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300,600">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/css/materialize.min.css">
+    <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-websocket/2.0.0/angular-websocket.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.6/js/materialize.min.js"></script>
+
+    <script src="app.js"></script>
+</head>
+
+<body ng-controller="DashboardController">
+    <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <div class="card-panel blue-grey">
+                    <h3 class='center-align'>Dashboard</h3>
+                </div>
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <div class="col s4">
+                <div class="card blue-grey">
+                    <div class="card-content white-text">
+                        <span class="card-title">
+                            <h4 class='center-align'>Success</h4>
+                        </span>
+                        <h5 style="color: #009688; text-align: center; font-weight: bold;">{{statistics.counter.success}}</h5>
+                    </div>
+                    <div class="card-action">
+                        <h6 style="text-align: center; font-weight: bold;">{{statistics.rate.success}}</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col s4">
+                <div class="card blue-grey">
+                    <div class="card-content white-text">
+                        <span class="card-title">
+                            <h4 class='center-align'>Retry</h4>
+                        </span>
+                        <h5 style="color: #03A9F4; text-align: center; font-weight: bold;">{{statistics.counter.retry}}</h5>
+                    </div>
+                    <div class="card-action">
+                        <h6 style="text-align: center; font-weight: bold;">{{statistics.rate.retry}}</h5>
+                    </div>
+                </div>
+            </div>
+            <div class="col s4">
+                <div class="card blue-grey">
+                    <div class="card-content white-text">
+                        <span class="card-title">
+                            <h4 class='center-align'>Failure</h4>
+                        </span>
+                        <h5 style="color: #E53935; text-align: center; font-weight: bold;">{{statistics.counter.failure}}</h5>
+                    </div>
+                    <div class="card-action">
+                        <h6 style="text-align: center; font-weight: bold;">{{statistics.rate.failure}}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+            <div class="col s12">
+                <table id="workers-table" class="bordered stripped highlight">
+                    <!--<thead>
+                        <tr>
+                            <th>Hostname</th>
+                            <th>Worker</th>
+                            <th>Status</th>
+                            <th>Process</th>
+                            <th>Success</th>
+                            <th>Retry</th>
+                            <th>Fail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for worker in statistics['workers'] | sort(attribute='name') %}
+                        <tr>
+                            <td style="font-weight: bold;">{{ worker['hostname'] }}</td>
+                            <td style="font-weight: bold;">{{ worker['name'] }}</td>
+                            <td style="font-weight: bold;">{{ worker['status'] }}</td>
+                            <td style="color: #009688; font-weight: bold;">{{ worker['metrics']['process'] }}</td>
+                            <td style="color: #009688; font-weight: bold;">{{ worker['metrics']['success'] }}</td>
+                            <td style="color: #03A9F4; font-weight: bold;">{{ worker['metrics']['retry'] }}</td>
+                            <td style="color: #E53935; font-weight: bold;">{{ worker['metrics']['failure'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>-->
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

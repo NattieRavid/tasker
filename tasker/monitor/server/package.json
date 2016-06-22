@@ -8,8 +8,10 @@
         "bluebird": "latest",
         "body-parser": "latest",
         "socket.io": "latest",
-        "express": "latest"
+        "express": "latest",
+        "msgpack-lite": "latest"
     },
-    "devDependencies": {},
+    "devDependencies": {
+    },
     "author": "Gal Ben David <gal@intsights.com>"
 }
