@@ -2,6 +2,7 @@ var dgram = require('dgram');
 var express = require('express');
 var http = require('http');
 var socket_io = require('socket.io');
+var msgpack = require('msgpack-lite');
 
 
 var udp_server_port = 33333;
@@ -11,18 +12,82 @@ var udp_server = dgram.createSocket('udp4');
 var web_server_port = 8000;
 var web_server = express();
 
-var websockets_server_port = 8001;
-var websockets_http_server = http.createServer();
+var websockets_http_server = http.Server(web_server);
 var websockets_server = socket_io(websockets_http_server);
 
+
+class Statistics {
+    constructor () {
+        this.statistics = {
+            'counter': {
+                'process': 0,
+                'success': 0,
+                'retry': 0,
+                'failure': 0
+            },
+            'rate': {
+                'process': 0,
+                'success': 0,
+                'retry': 0,
+                'failure': 0,
+            },
+            'last_log': {
+                'process': [0, 0, 0, 0, 0],
+                'success': [0, 0, 0, 0, 0],
+                'retry': [0, 0, 0, 0, 0],
+                'failure': [0, 0, 0, 0, 0]
+            }
+        };
+    }
+
+    update_rate (rate) {
+        var count_from_last_time = this.statistics.counter.success - this.statistics.last_log[rate][this.statistics.last_log[rate].length - 1];
+        this.statistics.last_log[rate].shift();
+        this.statistics.last_log[rate].push(count_from_last_time);
+
+        var total_count = this.statistics.last_log[rate].reduce(
+            function (a, b) {
+                return a + b;
+            }
+        );
+        this.statistics.rate[rate] = total_count / 5.0;
+    }
+
+    increase (type, amount) {
+        var message_type = {
+            0: 'process',
+            1: 'success',
+            2: 'failure',
+            3: 'retry',
+            4: 'heartbeat'
+        };
+        var message_type_value = message_type[type];
+
+        this.statistics.counter[message_type_value] += amount;
+    }
+}
+
+var statistics = new Statistics();
+setInterval(
+    function () {
+        statistics.update_rate('process');
+        statistics.update_rate('success');
+        statistics.update_rate('retry');
+        statistics.update_rate('failure');
+    },
+    1000
+);
 
 websockets_server.on(
     'connection',
     function (socket) {
         socket.on(
-            'event',
+            'statistics',
             function (data) {
-
+                socket.emit(
+                    'statistics',
+                    statistics.statistics
+                );
             }
         );
         socket.on(
@@ -34,6 +99,7 @@ websockets_server.on(
     }
 );
 
+
 udp_server.on(
     'listening',
     function () {
@@ -43,6 +109,19 @@ udp_server.on(
 udp_server.on(
     'message',
     function (message, remote) {
+        var message_struct = {
+            HOSTNAME: 0,
+            WORKER_NAME: 1,
+            MESSAGE_TYPE: 2,
+            MESSAGE_VALUE: 3,
+            DATE: 4
+        };
+
+        unpacked_message = msgpack.decode(message);
+        statistics.increase(
+            unpacked_message[message_struct.MESSAGE_TYPE],
+            unpacked_message[message_struct.MESSAGE_VALUE]
+        );
     }
 );
 
@@ -50,10 +129,9 @@ web_server.use(
     express.static('public')
 );
 
-web_server.listen(
+websockets_http_server.listen(
     web_server_port,
     function () {
     }
 );
 udp_server.bind(udp_server_port, udp_server_host);
-websockets_server.listen(websockets_server_port);
