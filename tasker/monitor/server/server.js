@@ -16,44 +16,47 @@ var websockets_http_server = http.Server(web_server);
 var websockets_server = socket_io(websockets_http_server);
 
 
-class Statistics {
-    constructor () {
-        this.statistics = {
-            'counter': {
-                'process': 0,
-                'success': 0,
-                'retry': 0,
-                'failure': 0
-            },
-            'rate': {
-                'process': 0,
-                'success': 0,
-                'retry': 0,
-                'failure': 0,
-            },
-            'last_log': {
-                'process': [0, 0, 0, 0, 0],
-                'success': [0, 0, 0, 0, 0],
-                'retry': [0, 0, 0, 0, 0],
-                'failure': [0, 0, 0, 0, 0]
-            }
-        };
+var Statistics = function () {
+    this.statistics = {
+        'counter': {
+            'process': 0,
+            'success': 0,
+            'retry': 0,
+            'failure': 0
+        },
+        'rate': {
+            'process': 0,
+            'success': 0,
+            'retry': 0,
+            'failure': 0,
+        },
+        'last_log': {
+            'process': [0, 0, 0, 0, 0],
+            'success': [0, 0, 0, 0, 0],
+            'retry': [0, 0, 0, 0, 0],
+            'failure': [0, 0, 0, 0, 0]
+        }
+    };
+
+    this.update_rate = function (rate) {
+        var total_count = 0;
+
+        this.statistics.last_log[rate].unshift(this.statistics.counter[rate]);
+        console.log(this.statistics.last_log[rate]);
+
+        for (var i = 0; i < this.statistics.last_log[rate].length - 1; i++) {
+            total_count += this.statistics.last_log[rate][i] - this.statistics.last_log[rate][i + 1];
+        }
+        this.statistics.last_log[rate].pop();
+
+        if (total_count > 0) {
+            this.statistics.rate[rate] = total_count / 5.0;
+        } else {
+            this.statistics.rate[rate] = 0;
+        }
     }
 
-    update_rate (rate) {
-        var count_from_last_time = this.statistics.counter.success - this.statistics.last_log[rate][this.statistics.last_log[rate].length - 1];
-        this.statistics.last_log[rate].shift();
-        this.statistics.last_log[rate].push(count_from_last_time);
-
-        var total_count = this.statistics.last_log[rate].reduce(
-            function (a, b) {
-                return a + b;
-            }
-        );
-        this.statistics.rate[rate] = total_count / 5.0;
-    }
-
-    increase (type, amount) {
+    this.increase = function (type, amount) {
         var message_type = {
             0: 'process',
             1: 'success',
