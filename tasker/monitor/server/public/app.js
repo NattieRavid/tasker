@@ -37,6 +37,13 @@ TaskerDashboard.controller(
                     $scope.statistics = data;
                 }
             );
+            websocket.on(
+                'queues',
+                function(data) {
+                    $scope.queues = data;
+                    console.log(data);
+                }
+            );
 
             $interval(
                 function() {
@@ -46,6 +53,15 @@ TaskerDashboard.controller(
                     );
                 },
                 1000
+            );
+            $interval(
+                function() {
+                    websocket.emit(
+                        'queues',
+                        {}
+                    );
+                },
+                5000
             );
         }
     ]

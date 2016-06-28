@@ -73,31 +73,19 @@
         <div class="divider"></div>
         <div class="row">
             <div class="col s12">
-                <table id="workers-table" class="bordered stripped highlight">
-                    <!--<thead>
+                <table id="queues-table" class="bordered stripped highlight">
+                    <thead>
                         <tr>
-                            <th>Hostname</th>
-                            <th>Worker</th>
-                            <th>Status</th>
-                            <th>Process</th>
-                            <th>Success</th>
-                            <th>Retry</th>
-                            <th>Fail</th>
+                            <th>Name</th>
+                            <th>Count</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for worker in statistics['workers'] | sort(attribute='name') %}
-                        <tr>
-                            <td style="font-weight: bold;">{{ worker['hostname'] }}</td>
-                            <td style="font-weight: bold;">{{ worker['name'] }}</td>
-                            <td style="font-weight: bold;">{{ worker['status'] }}</td>
-                            <td style="color: #009688; font-weight: bold;">{{ worker['metrics']['process'] }}</td>
-                            <td style="color: #009688; font-weight: bold;">{{ worker['metrics']['success'] }}</td>
-                            <td style="color: #03A9F4; font-weight: bold;">{{ worker['metrics']['retry'] }}</td>
-                            <td style="color: #E53935; font-weight: bold;">{{ worker['metrics']['failure'] }}</td>
+                        <tr ng-repeat="queue in queues | orderBy: 'name'">
+                            <td style="font-weight: bold;">{{queue.name}}</td>
+                            <td style="font-weight: bold;">{{queue.length}}</td>
                         </tr>
-                        {% endfor %}
-                    </tbody>-->
+                    </tbody>
                 </table>
             </div>
         </div>
