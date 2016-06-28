@@ -1,10 +1,41 @@
 var TaskerDashboard = angular.module(
     'TaskerDashboard',
     [
+        'ngRoute',
         'ngWebSocket',
     ]
 );
-
+TaskerDashboard.config(
+    [
+        '$routeProvider',
+        function($routeProvider) {
+            $routeProvider
+            .when(
+                '/dashboard',
+                {
+                    templateUrl: 'pages/dashboard.html'
+                }
+            )
+            .when(
+                '/workers',
+                {
+                    templateUrl: 'pages/workers.html'
+                }
+            )
+            .when(
+                '/queues',
+                {
+                    templateUrl: 'pages/queues.html'
+                }
+            )
+            .otherwise(
+                {
+                    redirectTo: '/dashboard'
+                }
+            )
+        }
+    ]
+);
 
 TaskerDashboard.controller(
     'DashboardController',
@@ -29,19 +60,16 @@ TaskerDashboard.controller(
                 }
             };
             var host = $location.host();
-            var websocket = io('http://localhost:8000');
+            var websocket = io(
+                {
+                    'port': 8000
+                }
+            );
 
             websocket.on(
                 'statistics',
                 function(data) {
                     $scope.statistics = data;
-                }
-            );
-            websocket.on(
-                'queues',
-                function(data) {
-                    $scope.queues = data;
-                    console.log(data);
                 }
             );
 
@@ -54,6 +82,32 @@ TaskerDashboard.controller(
                 },
                 1000
             );
+        }
+    ]
+);
+
+TaskerDashboard.controller(
+    'QueuesController',
+    [
+        '$scope',
+        '$websocket',
+        '$location',
+        '$interval',
+        function QueuesController($scope, $websocket, $location, $interval) {
+            var host = $location.host();
+            var websocket = io(
+                {
+                    'port': 8000
+                }
+            );
+
+            websocket.on(
+                'queues',
+                function(data) {
+                    $scope.queues = data;
+                }
+            );
+
             $interval(
                 function() {
                     websocket.emit(
@@ -61,7 +115,7 @@ TaskerDashboard.controller(
                         {}
                     );
                 },
-                5000
+                2000
             );
         }
     ]
