@@ -9,6 +9,7 @@
         "body-parser": "latest",
         "socket.io": "latest",
         "express": "latest",
+        "redis": "latest",
         "msgpack-lite": "latest"
     },
     "devDependencies": {
