@@ -17,11 +17,11 @@ var redis_client = redis.createClient(
     }
 );
 
-var udp_server_port = 33333;
+var udp_server_port = 9999;
 var udp_server_host = '0.0.0.0';
 var udp_server = dgram.createSocket('udp4');
 
-var web_server_port = 8000;
+var web_server_port = 8080;
 var web_server = express();
 
 var websockets_http_server = http.Server(web_server);
