@@ -129,6 +129,9 @@ TaskerDashboard.controller(
         '$location',
         '$interval',
         function WorkersController($scope, $websocket, $location, $interval) {
+            $scope.workers_table_sort_by = 'hostname';
+            $scope.workers_table_sort_by_reverse = true;
+
             var host = $location.host();
             var websocket = io(
                 {
