@@ -120,3 +120,38 @@ TaskerDashboard.controller(
         }
     ]
 );
+
+TaskerDashboard.controller(
+    'WorkersController',
+    [
+        '$scope',
+        '$websocket',
+        '$location',
+        '$interval',
+        function WorkersController($scope, $websocket, $location, $interval) {
+            var host = $location.host();
+            var websocket = io(
+                {
+                    'port': 8000
+                }
+            );
+
+            websocket.on(
+                'workers',
+                function(data) {
+                    $scope.workers = data;
+                }
+            );
+
+            $interval(
+                function() {
+                    websocket.emit(
+                        'workers',
+                        {}
+                    );
+                },
+                2000
+            );
+        }
+    ]
+);

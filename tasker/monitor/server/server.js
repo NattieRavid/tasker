@@ -49,6 +49,7 @@ var Statistics = function () {
             'failure': [0, 0, 0, 0, 0]
         }
     };
+    this.workers = {};
 
     this.update_rate = function (rate) {
         var total_count = 0;
@@ -65,7 +66,7 @@ var Statistics = function () {
         } else {
             this.statistics.rate[rate] = 0;
         }
-    }
+    };
 
     this.increase = function (type, amount) {
         var message_type = {
@@ -78,8 +79,40 @@ var Statistics = function () {
         var message_type_value = message_type[type];
 
         this.statistics.counter[message_type_value] += amount;
-    }
-}
+    };
+
+    this.update_worker = function (hostname, worker_name, type, amount) {
+        var message_type = {
+            0: 'process',
+            1: 'success',
+            2: 'failure',
+            3: 'retry',
+            4: 'heartbeat'
+        };
+        var message_type_value = message_type[type];
+        var worker_key = hostname + '<->' + worker_name;
+
+        if (!(worker_key in this.workers)) {
+            this.workers[worker_key] = {
+                'hostname': '',
+                'name': '',
+                'process': 0,
+                'success': 0,
+                'retry': 0,
+                'failure': 0,
+                'heartbeat': 0,
+                'status': 'online',
+                'last_seen': new Date()
+            };
+        }
+
+        this.workers[worker_key].hostname = hostname;
+        this.workers[worker_key].name = worker_name;
+        this.workers[worker_key].status = 'online';
+        this.workers[worker_key].last_seen = new Date();
+        this.workers[worker_key][message_type_value] += 1;
+    };
+};
 
 var statistics = new Statistics();
 setInterval(
@@ -101,6 +134,20 @@ websockets_server.on(
                 socket.emit(
                     'statistics',
                     statistics.statistics
+                );
+            }
+        );
+        socket.on(
+            'workers',
+            function (data) {
+                var workers = [];
+
+                for (var key in statistics.workers) {
+                    workers.push(statistics.workers[key]);
+                }
+                socket.emit(
+                    'workers',
+                    workers
                 );
             }
         );
@@ -144,9 +191,9 @@ websockets_server.on(
                                                             'length': length
                                                         }
                                                     );
-                                                }
+                                                };
                                             }(queue_name)
-                                        )
+                                        );
                                     }
                                 )
                             );
@@ -191,6 +238,12 @@ udp_server.on(
 
         unpacked_message = msgpack.decode(message);
         statistics.increase(
+            unpacked_message[message_struct.MESSAGE_TYPE],
+            unpacked_message[message_struct.MESSAGE_VALUE]
+        );
+        statistics.update_worker(
+            unpacked_message[message_struct.HOSTNAME],
+            unpacked_message[message_struct.WORKER_NAME],
             unpacked_message[message_struct.MESSAGE_TYPE],
             unpacked_message[message_struct.MESSAGE_VALUE]
         );
