@@ -34,7 +34,7 @@ class ThreadedExecutor(
             profiling_handler=profiling_handler,
             worker_config=worker_config,
         )
-        self.concurrency = self.worker_config['executor']['config']['concurrency']
+        self.concurrency = self.worker_config['executor']['concurrency']
 
     def execute_tasks(
         self,

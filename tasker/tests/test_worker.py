@@ -20,7 +20,6 @@ class EventsTestWorker(worker.Worker):
             },
             'executor': {
                 'type': 'serial',
-                'config': {},
             },
             'max_tasks_per_run': 1,
             'max_retries': 1,
@@ -140,9 +139,7 @@ class SingleServerThreadedEventsTestWorker(EventsTestWorker):
             },
             'executor': {
                 'type': 'threaded',
-                'config': {
-                    'concurrency': 1,
-                },
+                'concurrency': 1,
             },
         }
     )

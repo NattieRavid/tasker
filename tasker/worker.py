@@ -47,7 +47,8 @@ class Worker:
         },
         'executor': {
             'type': 'serial',
-            'config': {},
+            # 'type': 'threaded',
+            # 'concurrency': 50,
         },
         'profiler': {
             'enabled': False,
