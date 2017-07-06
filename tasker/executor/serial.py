@@ -13,6 +13,7 @@ class SerialExecutor(
     def __init__(
         self,
         work_method,
+        report_current_task,
         on_success,
         on_timeout,
         on_failure,
@@ -28,6 +29,7 @@ class SerialExecutor(
     ):
         super().__init__(
             work_method=work_method,
+            report_current_task=report_current_task,
             on_success=on_success,
             on_timeout=on_timeout,
             on_failure=on_failure,
@@ -140,7 +142,11 @@ class SerialExecutor(
 
     def pre_work(
         self,
+        task,
     ):
+        self.report_current_task(
+            task=task,
+        )
         self.killer.reset()
         self.killer.start()
 

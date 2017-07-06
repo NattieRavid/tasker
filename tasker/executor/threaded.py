@@ -12,6 +12,7 @@ class ThreadedExecutor(
     def __init__(
         self,
         work_method,
+        report_current_task,
         on_success,
         on_timeout,
         on_failure,
@@ -24,6 +25,7 @@ class ThreadedExecutor(
     ):
         super().__init__(
             work_method=work_method,
+            report_current_task=report_current_task,
             on_success=on_success,
             on_timeout=on_timeout,
             on_failure=on_failure,
@@ -54,7 +56,11 @@ class ThreadedExecutor(
 
     def pre_work(
         self,
+        task,
     ):
+        self.report_current_task(
+            task=task,
+        )
         self.timeout_timer = threading.Timer(
             interval=self.worker_config['timeouts']['soft_timeout'],
             function=ctypes.pythonapi.PyThreadState_SetAsyncExc,

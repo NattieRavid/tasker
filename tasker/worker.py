@@ -1,6 +1,7 @@
 import time
 import traceback
 import socket
+import threading
 
 from . import connector
 from . import devices
@@ -212,6 +213,12 @@ class Worker:
                 number_of_tasks=number_of_tasks,
             )
 
+    def update_current_task(
+        self,
+        task,
+    ):
+        self.current_task = task
+
     def work_loop(
         self,
     ):
@@ -220,6 +227,7 @@ class Worker:
 
             executor_kwargs = {
                 'work_method': self.work,
+                'update_current_task': self.update_current_task,
                 'on_success': self._on_success,
                 'on_timeout': self._on_timeout,
                 'on_failure': self._on_failure,

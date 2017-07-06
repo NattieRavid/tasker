@@ -8,6 +8,7 @@ class BaseExecutor:
     def __init__(
         self,
         work_method,
+        report_current_task,
         on_success,
         on_timeout,
         on_failure,
@@ -19,6 +20,7 @@ class BaseExecutor:
         worker_config,
     ):
         self.work_method = work_method
+        self.report_current_task = report_current_task
         self.on_success = on_success
         self.on_timeout = on_timeout
         self.on_failure = on_failure
@@ -39,12 +41,25 @@ class BaseExecutor:
     ):
         pass
 
+    def pre_work(
+        self,
+        task,
+    ):
+        pass
+
+    def post_work(
+        self,
+    ):
+        pass
+
     def execute_task(
         self,
         task,
     ):
         try:
-            self.pre_work()
+            self.pre_work(
+                task=task,
+            )
 
             if self.worker_config['profiler']['enabled']:
                 work_profiler = profiler.profiler.Profiler()
