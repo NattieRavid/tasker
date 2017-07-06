@@ -1,0 +1,145 @@
+<div ng-controller="dashboardController">
+    <div class="columns">
+        <div class="column">
+        </div>
+    </div>
+
+    <div class="columns">
+        <div class="tile">
+            <div class="tile is-parent is-3">
+                <article class="tile is-child notification">
+                    <p class="title has-text-centered">Process</p>
+                    <p class="title is-4 is-spaced has-text-centered">
+                        {{metrics.process.toLocaleString()}}
+                    </p>
+                    <p class="subtitle is-5 is-spaced">
+                        Per Second: {{rates.process_per_second.toLocaleString()}}
+                    </p>
+                </article>
+            </div>
+            <div class="tile is-parent is-3">
+                <article class="tile is-child notification is-primary">
+                    <p class="title has-text-centered">Success</p>
+                    <p class="title is-4 is-spaced has-text-centered">
+                        {{metrics.success.toLocaleString()}}
+                    </p>
+                    <p class="subtitle is-5 is-spaced">
+                        Per Second: {{rates.success_per_second.toLocaleString()}}
+                    </p>
+                </article>
+            </div>
+            <div class="tile is-parent is-3">
+                <article class="tile is-child notification is-info">
+                    <p class="title has-text-centered">Retry</p>
+                    <p class="title is-4 is-spaced has-text-centered">
+                        {{metrics.retry.toLocaleString()}}
+                    </p>
+                    <p class="subtitle is-5 is-spaced">
+                        Per Second: {{rates.retry_per_second.toLocaleString()}}
+                    </p>
+                </article>
+            </div>
+            <div class="tile is-parent is-3">
+                <article class="tile is-child notification is-danger">
+                    <p class="title has-text-centered">Failure</p>
+                    <p class="title is-4 is-spaced has-text-centered">
+                        {{metrics.failure.toLocaleString()}}
+                    </p>
+                    <p class="subtitle is-5 is-spaced">
+                        Per Second: {{rates.failure_per_second.toLocaleString()}}
+                    </p>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <div class="columns">
+        <div class="column">
+        </div>
+    </div>
+
+    <div class="columns">
+        <div class="tile">
+            <div class="tile is-parent is-4">
+                <article class="tile is-child notification">
+                    <p class="title">Queues</p>
+                    <table id="queues-table" class="table is-bordered is-stripped is-narrow">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Count</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="(queue_name, queue_count) in queues">
+                                <td>{{queue_name}}</td>
+                                <td>{{queue_count.toLocaleString()}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </article>
+            </div>
+            <div class="tile is-parent is-8">
+                <article class="tile is-child notification">
+                    <p class="title">Statistics</p>
+                    <table id="statistics-table" class="table is-bordered is-stripped is-narrow">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Process</th>
+                                <th>Success</th>
+                                <th>Retry</th>
+                                <th>Failure</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="(worker_name, metrics) in statistics">
+                                <td>{{worker_name}}</td>
+                                <td>{{metrics.process.toLocaleString()}}</td>
+                                <td>{{metrics.success.toLocaleString()}}</td>
+                                <td>{{metrics.retry.toLocaleString()}}</td>
+                                <td>{{metrics.failure.toLocaleString()}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <div class="columns">
+        <div class="tile">
+            <div class="tile is-parent is-12">
+                <article class="tile is-child notification">
+                    <p class="title">Workers</p>
+                    </br>
+                    <p class="subtitle">
+                        <input placeholder="search..." id="search" type="text" class="validate input" ng-model="workers_search">
+                    </p>
+                    <table id="queues-table" class="table is-bordered is-stripped is-narrow">
+                        <thead>
+                            <tr>
+                                <th style="cursor: pointer;" ng-click="workersTableSortBy = 'hostname'; workersTableSortByReverse = !workersTableSortByReverse;">Hostname</th>
+                                <th style="cursor: pointer;" ng-click="workersTableSortBy = 'name'; workersTableSortByReverse = !workersTableSortByReverse;">Worker</th>
+                                <th style="cursor: pointer;" ng-click="workersTableSortBy = 'metrics.process'; workersTableSortByReverse = !workersTableSortByReverse;">Process</th>
+                                <th style="cursor: pointer;" ng-click="workersTableSortBy = 'metrics.success'; workersTableSortByReverse = !workersTableSortByReverse;">Success</th>
+                                <th style="cursor: pointer;" ng-click="workersTableSortBy = 'metrics.retry'; workersTableSortByReverse = !workersTableSortByReverse;">Retry</th>
+                                <th style="cursor: pointer;" ng-click="workersTableSortBy = 'metrics.failure'; workersTableSortByReverse = !workersTableSortByReverse;">Fail</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="worker in workers | filter: workers_search | orderBy: workersTableSortBy : workersTableSortByReverse | limitTo: 50">
+                                <td>{{worker.hostname}}</td>
+                                <td>{{worker.name}}</td>
+                                <td>{{worker.metrics.process.toLocaleString()}}</td>
+                                <td>{{worker.metrics.success.toLocaleString()}}</td>
+                                <td>{{worker.metrics.retry.toLocaleString()}}</td>
+                                <td>{{worker.metrics.failure.toLocaleString()}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </article>
+            </div>
+        </div>
+    </div>
+</div>

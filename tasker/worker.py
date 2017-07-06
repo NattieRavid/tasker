@@ -69,6 +69,7 @@ class Worker:
         )
 
         self.worker_initialized = False
+        self.current_tasks = {}
 
     def init_worker(
         self,
@@ -115,6 +116,19 @@ class Worker:
             self.heartbeater = devices.heartbeater.DummyHeartbeater()
 
         self.worker_initialized = True
+
+    @property
+    def current_task(
+        self,
+    ):
+        return self.current_tasks[threading.get_ident()]
+
+    @current_task.setter
+    def current_task(
+        self,
+        value,
+    ):
+        self.current_tasks[threading.get_ident()] = value
 
     def purge_tasks(
         self,
@@ -292,10 +306,33 @@ class Worker:
 
     def retry(
         self,
+        exception=None,
     ):
-        retry_exception = WorkerRetry()
+        task = self.current_task
+        exception_traceback = ''.join(traceback.format_stack())
 
-        raise retry_exception
+        if not exception:
+            exception = WorkerRetry()
+
+        if self.config['max_retries'] <= task['run_count']:
+            self._on_max_retries(
+                task=task,
+                exception=exception,
+                exception_traceback=exception_traceback,
+                args=task['args'],
+                kwargs=task['kwargs'],
+            )
+            self.report_complete(
+                task=task,
+            )
+        else:
+            self._on_retry(
+                task=task,
+                exception=exception,
+                exception_traceback=exception_traceback,
+                args=task['args'],
+                kwargs=task['kwargs'],
+            )
 
     def requeue(
         self,
@@ -639,13 +676,13 @@ class WorkerHardTimedout(
     pass
 
 
-class WorkerRetry(
+class WorkerRequeue(
     WorkerException,
 ):
     pass
 
 
-class WorkerRequeue(
+class WorkerRetry(
     WorkerException,
 ):
     pass

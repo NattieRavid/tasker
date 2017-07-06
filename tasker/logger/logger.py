@@ -4,15 +4,16 @@ import logging
 
 
 class Logger:
-    '''
-    '''
     log_level = logging.ERROR
     logs_dir_path = os.path.join(
         tempfile.gettempdir(),
         'tasker',
     )
 
-    def __init__(self, logger_name):
+    def __init__(
+        self,
+        logger_name,
+    ):
         self.logger_name = logger_name
 
         logs_dir_path = os.path.join(
@@ -56,40 +57,67 @@ class Logger:
 
         self.logger.setLevel(self.log_level)
 
-    def create_logs_dir_path(self, logs_dir_path):
-        '''
-        '''
+    @classmethod
+    def create_logs_dir_path(
+        cls,
+        logs_dir_path,
+    ):
         try:
-            os.makedirs(logs_dir_path)
-        except:
+            os.makedirs(
+                name=logs_dir_path,
+                exist_ok=True,
+            )
+        except Exception:
             pass
 
-    def debug(self, msg):
-        '''
-        '''
+    def debug(
+        self,
+        msg,
+        extra={},
+    ):
         self.logger.debug(
             msg=msg,
+            extra=extra,
         )
 
-    def warning(self, msg):
-        '''
-        '''
+    def warning(
+        self,
+        msg,
+        extra={},
+    ):
         self.logger.warning(
             msg=msg,
+            extra=extra,
         )
 
-    def info(self, msg):
-        '''
-        '''
+    def info(
+        self,
+        msg,
+        extra={},
+    ):
         self.logger.info(
             msg=msg,
+            extra=extra,
         )
 
-    def error(self, msg):
-        '''
-        '''
+    def error(
+        self,
+        msg,
+        extra={},
+    ):
         self.logger.error(
             msg=msg,
+            extra=extra,
+        )
+
+    def critical(
+        self,
+        msg,
+        extra={},
+    ):
+        self.logger.critical(
+            msg=msg,
+            extra=extra,
         )
 
     def log_task_failure(
@@ -101,8 +129,6 @@ class Logger:
         exception,
         exception_traceback,
     ):
-        '''
-        '''
         traceback_formatted = exception_traceback.split('\n')
         traceback_formatted = [
             '\t\t\t | ' + line
@@ -112,7 +138,7 @@ class Logger:
         traceback_formatted = '\n' + traceback_formatted
 
         self.error(
-            '''
+            msg='''
                 --------------------------------------------
                 {failure_reason}:
                 - task: {task_name}
@@ -128,7 +154,8 @@ class Logger:
                 kwargs=kwargs,
                 exception=exception,
                 traceback=traceback_formatted,
-            )
+            ),
+            extra={},
         )
 
     def log_task_success(
@@ -138,10 +165,8 @@ class Logger:
         kwargs,
         returned_value,
     ):
-        '''
-        '''
         self.info(
-            '''
+            msg='''
                 Success:
                 - task: {task_name}
                 - args: {args}
@@ -152,12 +177,13 @@ class Logger:
                 args=args,
                 kwargs=kwargs,
                 returned_value=returned_value,
-            )
+            ),
+            extra={},
         )
 
-    def __getstate__(self):
-        '''
-        '''
+    def __getstate__(
+        self,
+    ):
         state = {
             'logger_name': self.logger_name,
             'log_level': self.log_level,
@@ -165,9 +191,10 @@ class Logger:
 
         return state
 
-    def __setstate__(self, value):
-        '''
-        '''
+    def __setstate__(
+        self,
+        value,
+    ):
         self.log_level = value['log_level']
 
         self.__init__(

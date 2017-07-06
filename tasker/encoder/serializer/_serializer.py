@@ -1,16 +1,14 @@
 class Serializer:
-    '''
-    '''
     name = ''
 
     @staticmethod
-    def serialize(data):
-        '''
-        '''
-        raise NotImplemented()
+    def serialize(
+        data,
+    ):
+        raise NotImplementedError()
 
     @staticmethod
-    def unserialize(data):
-        '''
-        '''
-        raise NotImplemented()
+    def unserialize(
+        data,
+    ):
+        raise NotImplementedError()
