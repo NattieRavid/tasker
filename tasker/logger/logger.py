@@ -181,6 +181,12 @@ class Logger:
             extra={},
         )
 
+    def add_handler(
+        self,
+        handler,
+    ):
+        self.logger.addHandler(handler)
+
     def __getstate__(
         self,
     ):

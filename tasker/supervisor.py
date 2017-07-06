@@ -1,4 +1,3 @@
-import sys
 import os
 import threading
 import multiprocessing
@@ -93,15 +92,9 @@ class Supervisor:
                 process.start()
 
                 self.workers_processes.append(process)
-
-                if self.task.config['timeouts']['global_timeout'] != 0.0:
-                    process.join(
-                        timeout=self.task.global_timeout,
-                    )
-                else:
-                    process.join(
-                        timeout=None,
-                    )
+                process.join(
+                    timeout=self.task.config['timeouts']['global_timeout'] or None,
+                )
 
                 if process.exception:
                     self.logger.critical(
@@ -116,17 +109,7 @@ class Supervisor:
                         },
                     )
             except Exception as exception:
-                self.logger.critical(
-                    msg='supervisor has thrown an exception',
-                    extra={
-                        'exception': {
-                            'type': exception.__class__.__name__,
-                            'message': str(exception),
-                        },
-                        'traceback': traceback.format_exc(),
-                        'additional': dict(),
-                    },
-                )
+                raise exception
             finally:
                 if process:
                     process.terminate()
@@ -145,6 +128,7 @@ class Supervisor:
         self,
     ):
         threads = []
+
         for i in range(self.concurrent_workers):
             thread = threading.Thread(
                 target=self.worker_watchdog,
@@ -161,11 +145,12 @@ class Supervisor:
                 thread.join()
         except KeyboardInterrupt:
             pass
+        except Exception as exception:
+            raise exception
         finally:
             self.should_work_event.clear()
             for worker_process in self.workers_processes:
                 worker_process.terminate()
-            sys.exit(0)
 
     def __getstate__(
         self,
