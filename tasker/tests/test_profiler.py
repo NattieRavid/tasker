@@ -14,20 +14,13 @@ class ProfilerTestCase(
         self.profiler = profiler.profiler.Profiler()
 
     @staticmethod
-    def dummy_func_1():
+    def printing_func_to_profile():
         print('This is a worker profiling test')
 
     @staticmethod
-    def dummy_func_2(
+    def http_request_func_to_profile(
         time_to_wait,
     ):
-        x = 4
-
-        for i in range(5):
-            print('Hey there!')
-
-            x *= 8
-
         time.sleep(time_to_wait)
 
         requests.get('https://www.google.com')
@@ -39,26 +32,22 @@ class ProfilerTestCase(
 
         expected_results = [
             {
-                'method': 'dummy_func_1',
-                'filename': '/backend/worker/libs/tasker/tasker/tests/test_profiler.py',
+                'method': 'printing_func_to_profile',
                 'library': None,
                 'line_number': '16',
             },
             {
                 'method': 'stop',
-                'filename': '/backend/worker/libs/tasker/tasker/profiler/profiler.py',
                 'library': None,
                 'line_number': '31',
             },
             {
                 'method': 'disable',
-                'filename': None,
                 'library': '_lsprof.Profiler',
                 'line_number': None,
             },
             {
                 'method': 'builtins.print',
-                'filename': None,
                 'library': None,
                 'line_number': None,
             },
@@ -66,7 +55,7 @@ class ProfilerTestCase(
 
         self.profiler.start()
 
-        self.dummy_func_1()
+        self.printing_func_to_profile()
 
         self.profiler.stop()
 
@@ -74,10 +63,23 @@ class ProfilerTestCase(
             method_properties = self.profiler.properties_regex.search(str(method_profile.code))
             method_properties_dict = {
                 'method': method_properties.group('method'),
-                'filename': method_properties.group('filename'),
                 'library': method_properties.group('lib'),
                 'line_number': method_properties.group('line_number'),
             }
+            filename = method_properties.group('filename')
+
+            if method_properties_dict['line_number']:
+                self.assertEqual(
+                    type(filename),
+                    str,
+                    msg='profiling does not record the filename',
+                )
+            else:
+                self.assertIsNone(
+                    filename,
+                    msg='profiling method filename is invalid',
+                )
+
             methods_profiling.append(method_properties_dict)
 
         self.assertEqual(
@@ -90,12 +92,12 @@ class ProfilerTestCase(
         self,
     ):
         methods_count = 5
-        dummy_func_2_time_to_wait = 3
+        http_request_func_to_profile_time_to_wait = 3
 
         self.profiler.start()
 
-        self.dummy_func_2(
-            time_to_wait=dummy_func_2_time_to_wait,
+        self.http_request_func_to_profile(
+            time_to_wait=http_request_func_to_profile_time_to_wait,
         )
 
         self.profiler.stop()
@@ -120,28 +122,28 @@ class ProfilerTestCase(
         )
 
         for method_profile in profiling_statistics:
-            if 'dummy_func_2' in method_profile['method']:
-                dummy_func_2_method_profile = method_profile
+            if 'http_request_func_to_profile' in method_profile['method']:
+                http_request_func_to_profile_method_profile = method_profile
                 break
 
-        dummy_func_2_method_profile.pop('task_profiling_id')
-        method_time_consumed = dummy_func_2_method_profile.pop('time_consumed')
+        http_request_func_to_profile_method_profile.pop('task_profiling_id')
+        method_time_consumed = http_request_func_to_profile_method_profile.pop('time_consumed')
 
         expected_method_profile = {
-            'method': 'dummy_func_2',
+            'method': 'http_request_func_to_profile',
             'filename': '/backend/worker/libs/tasker/tasker/tests/test_profiler.py',
             'library': 'None',
             'line_number': '20',
         }
 
         self.assertDictEqual(
-            dummy_func_2_method_profile,
+            http_request_func_to_profile_method_profile,
             expected_method_profile,
             msg='Dicts are not equal',
         )
 
         self.assertGreater(
             method_time_consumed,
-            dummy_func_2_time_to_wait,
+            http_request_func_to_profile_time_to_wait,
             msg='time consumed is incorrect',
         )
