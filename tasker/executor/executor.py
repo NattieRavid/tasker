@@ -8,7 +8,7 @@ class BaseExecutor:
     def __init__(
         self,
         work_method,
-        report_current_task,
+        update_current_task,
         on_success,
         on_timeout,
         on_failure,
@@ -20,7 +20,7 @@ class BaseExecutor:
         worker_config,
     ):
         self.work_method = work_method
-        self.report_current_task = report_current_task
+        self.update_current_task = update_current_task
         self.on_success = on_success
         self.on_timeout = on_timeout
         self.on_failure = on_failure
