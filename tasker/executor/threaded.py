@@ -2,42 +2,13 @@ import ctypes
 import threading
 import concurrent.futures
 
-from . import executor
+from . import _executor
 from .. import worker
 
 
 class ThreadedExecutor(
-    executor.BaseExecutor,
+    _executor.Executor,
 ):
-    def __init__(
-        self,
-        work_method,
-        update_current_task,
-        on_success,
-        on_timeout,
-        on_failure,
-        on_requeue,
-        on_retry,
-        on_max_retries,
-        report_complete,
-        profiling_handler,
-        worker_config,
-    ):
-        super().__init__(
-            work_method=work_method,
-            update_current_task=update_current_task,
-            on_success=on_success,
-            on_timeout=on_timeout,
-            on_failure=on_failure,
-            on_requeue=on_requeue,
-            on_retry=on_retry,
-            on_max_retries=on_max_retries,
-            report_complete=report_complete,
-            profiling_handler=profiling_handler,
-            worker_config=worker_config,
-        )
-        self.concurrency = self.worker_config['executor']['concurrency']
-
     def execute_tasks(
         self,
         tasks,
@@ -45,7 +16,7 @@ class ThreadedExecutor(
         future_to_task = {}
 
         with concurrent.futures.ThreadPoolExecutor(
-            max_workers=self.concurrency,
+            max_workers=self.worker_config['executor']['concurrency'],
         ) as executor:
             for task in tasks:
                 future = executor.submit(self.execute_task, task)

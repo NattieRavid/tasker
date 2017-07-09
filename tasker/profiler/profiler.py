@@ -35,7 +35,7 @@ class Profiler:
 
     def profiling_result(
         self,
-        num_of_slowest_methods=10,
+        num_of_slowest_methods,
     ):
         task_profiling_id = str(uuid.uuid4())
         methods_profiles = collections.defaultdict(int)

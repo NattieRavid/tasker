@@ -2,49 +2,14 @@ import traceback
 import os
 import signal
 
-from .import executor
+from .import _executor
 from .. import devices
 from .. import worker
 
 
 class SerialExecutor(
-    executor.BaseExecutor,
+    _executor.Executor,
 ):
-    def __init__(
-        self,
-        work_method,
-        update_current_task,
-        on_success,
-        on_timeout,
-        on_failure,
-        on_requeue,
-        on_retry,
-        on_max_retries,
-        report_complete,
-        profiling_handler,
-        worker_config,
-        worker_name,
-        worker_logger,
-        worker_task_queue,
-    ):
-        super().__init__(
-            work_method=work_method,
-            update_current_task=update_current_task,
-            on_success=on_success,
-            on_timeout=on_timeout,
-            on_failure=on_failure,
-            on_requeue=on_requeue,
-            on_retry=on_retry,
-            on_max_retries=on_max_retries,
-            report_complete=report_complete,
-            profiling_handler=profiling_handler,
-            worker_config=worker_config,
-        )
-        self.worker_name = worker_name
-        self.worker_logger = worker_logger
-        self.worker_task_queue = worker_task_queue
-        self.tasks_to_finish = []
-
     def sigabrt_handler(
         self,
         signal_num,
@@ -62,7 +27,6 @@ class SerialExecutor(
             )
         except Exception as exception:
             exception_traceback = traceback.format_exc()
-            # TODO  cr @hagay - raise to worker and log there
             self.worker_logger.log_task_failure(
                 failure_reason='Exception during sigabrt_handler',
                 task_name=self.worker_name,

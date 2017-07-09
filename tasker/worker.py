@@ -48,12 +48,10 @@ class Worker:
         },
         'executor': {
             'type': 'serial',
-            # 'type': 'threaded',
-            # 'concurrency': 50,
         },
         'profiler': {
             'enabled': False,
-            'num_of_slowest_methods_to_log': 1,
+            'num_of_slowest_methods_to_log': 20,
         },
         'max_tasks_per_run': 10,
         'max_retries': 3,
@@ -237,33 +235,16 @@ class Worker:
                 'report_complete': self.report_complete,
                 'profiling_handler': self.profiling_handler,
                 'worker_config': self.config,
+                'worker_name': self.name,
+                'worker_logger': self.logger,
+                'worker_task_queue': self.task_queue,
             }
 
             if self.config['executor']['type'] == 'serial':
-                executor_kwargs.update(
-                    {
-                        'worker_name': self.name,
-                        'worker_logger': self.logger,
-                        'worker_task_queue': self.task_queue,
-                    }
-                )
                 self.executor = executor.serial.SerialExecutor(
                     **executor_kwargs,
                 )
             elif self.config['executor']['type'] == 'threaded':
-                executor_kwargs.update(
-                    {
-                        'work_method': self.work,
-                        'on_success': self._on_success,
-                        'on_timeout': self._on_timeout,
-                        'on_failure': self._on_failure,
-                        'on_requeue': self._on_requeue,
-                        'on_retry': self._on_retry,
-                        'on_max_retries': self._on_max_retries,
-                        'report_complete': self.report_complete,
-                        'profiling_handler': self.profiling_handler,
-                    }
-                )
                 self.executor = executor.threaded.ThreadedExecutor(
                     **executor_kwargs,
                 )
