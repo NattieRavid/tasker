@@ -128,10 +128,10 @@ class ProfilerTestCase(
 
         http_request_func_to_profile_method_profile.pop('task_profiling_id')
         method_time_consumed = http_request_func_to_profile_method_profile.pop('time_consumed')
+        filename = http_request_func_to_profile_method_profile.pop('filename')
 
         expected_method_profile = {
             'method': 'http_request_func_to_profile',
-            'filename': '/backend/worker/libs/tasker/tasker/tests/test_profiler.py',
             'library': 'None',
             'line_number': '20',
         }
@@ -146,4 +146,10 @@ class ProfilerTestCase(
             method_time_consumed,
             http_request_func_to_profile_time_to_wait,
             msg='time consumed is incorrect',
+        )
+
+        self.assertEqual(
+            type(filename),
+            str,
+            msg='profiling method filename is invalid',
         )
