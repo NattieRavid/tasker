@@ -37,20 +37,14 @@ class ProfilerTestCase(
                 'line_number': '16',
             },
             {
-                'method': 'stop',
-                'library': None,
-                'line_number': '31',
-            },
-            {
-                'method': 'disable',
-                'library': '_lsprof.Profiler',
-                'line_number': None,
-            },
-            {
                 'method': 'builtins.print',
                 'library': None,
                 'line_number': None,
             },
+        ]
+        expected_methods = [
+            x['method']
+            for x in expected_results
         ]
 
         self.profiler.start()
@@ -61,17 +55,20 @@ class ProfilerTestCase(
 
         for method_profile in self.profiler.profiler.getstats():
             method_properties = self.profiler.properties_regex.search(str(method_profile.code))
+            method = method_properties.group('method')
+            if method not in expected_methods:
+                continue
+
             method_properties_dict = {
-                'method': method_properties.group('method'),
+                'method': method,
                 'library': method_properties.group('lib'),
                 'line_number': method_properties.group('line_number'),
             }
             filename = method_properties.group('filename')
 
             if method_properties_dict['line_number']:
-                self.assertEqual(
-                    type(filename),
-                    str,
+                self.assertTrue(
+                    str.endswith(filename, '.py'),
                     msg='profiling does not record the filename',
                 )
             else:
