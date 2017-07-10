@@ -229,10 +229,6 @@ class Worker:
                 'on_success': self._on_success,
                 'on_timeout': self._on_timeout,
                 'on_failure': self._on_failure,
-                'on_requeue': self._on_requeue,
-                'on_retry': self._on_retry,
-                'on_max_retries': self._on_max_retries,
-                'report_complete': self.report_complete,
                 'worker_profiling_handler': self.profiling_handler,
                 'worker_config': self.config,
                 'worker_name': self.name,
@@ -311,9 +307,6 @@ class Worker:
                 args=task['args'],
                 kwargs=task['kwargs'],
             )
-            self.report_complete(
-                task=task,
-            )
         else:
             self._on_retry(
                 task=task,
@@ -325,10 +318,21 @@ class Worker:
 
     def requeue(
         self,
+        exception=None,
     ):
-        requeue_exception = WorkerRequeue()
+        task = self.current_task
+        exception_traceback = ''.join(traceback.format_stack())
 
-        raise requeue_exception
+        if not exception:
+            exception = WorkerRetry()
+
+        self._on_requeue(
+            task=task,
+            exception=exception,
+            exception_traceback=exception_traceback,
+            args=task['args'],
+            kwargs=task['kwargs'],
+        )
 
     def _on_success(
         self,
@@ -337,6 +341,9 @@ class Worker:
         args,
         kwargs,
     ):
+        self.report_complete(
+            task=task,
+        )
         self.monitor_client.increment_success()
 
         self.logger.log_task_success(
@@ -371,6 +378,9 @@ class Worker:
         args,
         kwargs,
     ):
+        self.report_complete(
+            task=task,
+        )
         self.monitor_client.increment_failure()
 
         self.logger.log_task_failure(
@@ -490,6 +500,9 @@ class Worker:
         args,
         kwargs,
     ):
+        self.report_complete(
+            task=task,
+        )
         self.monitor_client.increment_failure()
 
         self.logger.log_task_failure(
@@ -527,6 +540,9 @@ class Worker:
         args,
         kwargs,
     ):
+        self.report_complete(
+            task=task,
+        )
         self.monitor_client.increment_failure()
 
         self.logger.log_task_failure(
