@@ -37,6 +37,7 @@ class Profiler:
         self,
         num_of_slowest_methods,
     ):
+        method_profiles = []
         task_profiling_id = str(uuid.uuid4())
         methods_profiles = collections.defaultdict(int)
 
@@ -67,4 +68,6 @@ class Profiler:
                 'task_profiling_id': task_profiling_id,
             }
 
-            yield method_profile
+            method_profiles.append(method_profile)
+
+        return method_profiles
