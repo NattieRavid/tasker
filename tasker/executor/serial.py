@@ -51,29 +51,21 @@ class SerialExecutor(
         self,
     ):
         if self.worker_config['timeouts']['critical_timeout'] == 0:
-            self.killer = devices.killer.LocalKiller(
-                pid=os.getpid(),
-                soft_timeout=self.worker_config['timeouts']['soft_timeout'],
-                soft_timeout_signal=signal.SIGINT,
-                hard_timeout=self.worker_config['timeouts']['hard_timeout'],
-                hard_timeout_signal=signal.SIGABRT,
-                critical_timeout=self.worker_config['timeouts']['critical_timeout'],
-                critical_timeout_signal=signal.SIGTERM,
-                memory_limit=self.worker_config['limits']['memory'],
-                memory_limit_signal=signal.SIGABRT,
-            )
+            killer_device = devices.killer.LocalKiller
         else:
-            self.killer = devices.killer.RemoteKiller(
-                pid=os.getpid(),
-                soft_timeout=self.worker_config['timeouts']['soft_timeout'],
-                soft_timeout_signal=signal.SIGINT,
-                hard_timeout=self.worker_config['timeouts']['hard_timeout'],
-                hard_timeout_signal=signal.SIGABRT,
-                critical_timeout=self.worker_config['timeouts']['critical_timeout'],
-                critical_timeout_signal=signal.SIGTERM,
-                memory_limit=self.worker_config['limits']['memory'],
-                memory_limit_signal=signal.SIGABRT,
-            )
+            killer_device = devices.killer.RemoteKiller
+        
+        self.killer = killer_device(
+            pid=os.getpid(),
+            soft_timeout=self.worker_config['timeouts']['soft_timeout'],
+            soft_timeout_signal=signal.SIGINT,
+            hard_timeout=self.worker_config['timeouts']['hard_timeout'],
+            hard_timeout_signal=signal.SIGABRT,
+            critical_timeout=self.worker_config['timeouts']['critical_timeout'],
+            critical_timeout_signal=signal.SIGTERM,
+            memory_limit=self.worker_config['limits']['memory'],
+            memory_limit_signal=signal.SIGABRT,
+        )
 
         signal.signal(signal.SIGABRT, self.sigabrt_handler)
         signal.signal(signal.SIGINT, self.sigint_handler)

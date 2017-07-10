@@ -16,7 +16,7 @@ class Executor:
         on_retry,
         on_max_retries,
         report_complete,
-        profiling_handler,
+        worker_profiling_handler,
         worker_config,
         worker_name,
         worker_logger,
@@ -31,7 +31,7 @@ class Executor:
         self.on_retry = on_retry
         self.on_max_retries = on_max_retries
         self.report_complete = report_complete
-        self.profiling_handler = profiling_handler
+        self.worker_profiling_handler = worker_profiling_handler
         self.worker_config = worker_config
         self.worker_name = worker_name
         self.worker_logger = worker_logger
@@ -80,7 +80,7 @@ class Executor:
             if self.worker_config['profiler']['enabled']:
                 work_profiler.stop()
 
-                self.profiling_handler(
+                self.worker_profiling_handler(
                     profiling_data_generator=work_profiler.profiling_result(
                         num_of_slowest_methods=self.worker_config['profiler']['num_of_slowest_methods_to_log'],
                     ),
