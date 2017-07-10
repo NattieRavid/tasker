@@ -1,26 +1,9 @@
 import uuid
-import collections
-import re
 import cProfile
 
 
 class Profiler:
     profiler = cProfile.Profile()
-    properties_regex = re.compile(
-        pattern=r'''
-            ^<
-            (code\sobject|(built-in\s)?method)
-            \s[<\']?
-            (?P<method>[\w\.]+)
-            (.*file\s"
-                (?P<filename>[\/\w\. \-]+)",\sline\s
-                (?P<line_number>\d+)
-                |\'\sof\s\'
-                (?P<lib>[\w\.]+)
-            )?
-        ''',
-        flags=re.IGNORECASE | re.VERBOSE,
-    )
 
     def start(
         self,
@@ -33,41 +16,57 @@ class Profiler:
     ):
         self.profiler.disable()
 
-    def profiling_result(
+    def profiling_results(
         self,
         num_of_slowest_methods,
     ):
-        method_profiles = []
+        profiling_results = []
         task_profiling_id = str(uuid.uuid4())
-        methods_profiles = collections.defaultdict(int)
 
-        for method_profile in self.profiler.getstats():
-            methods_profiles[str(method_profile.code)] += method_profile.totaltime
+        for profiler_entry in self.profiler.getstats():
+            if isinstance(
+                profiler_entry,
+                str,
+            ):
+                method_name = profiler_entry.code
+                filename = ''
+                line_number = ''
+            else:
+                method_name = profiler_entry.code.co_name
+                filename = profiler_entry.co_filename
+                line_number = profiler_entry.code.co_firstlineno
 
-        sorted_methods_by_totaltime = sorted(
-            methods_profiles.items(),
-            key=lambda x: x[1],
-            reverse=True,
-        )
-        slowest_methods = dict(
-            sorted_methods_by_totaltime[:num_of_slowest_methods],
-        )
-        for profiling_output, time_length in slowest_methods.items():
-            results = self.properties_regex.search(
-                string=profiling_output,
-            )
-            if not results:
-                continue
-
-            method_profile = {
-                'method': results.group('method'),
-                'filename': results.group('filename') or 'external_library',
-                'library': results.group('lib') or 'None',
-                'line_number': results.group('line_number') or '',
-                'time_consumed': time_length,
+            parsed_profiler_entry = {
+                'method': method_name,
+                'filename': filename,
+                'line_number': line_number,
+                'inline_time': profiler_entry.inlinetime,
+                'total_time': profiler_entry.totaltime,
                 'task_profiling_id': task_profiling_id,
             }
 
-            method_profiles.append(method_profile)
+            profiling_results.append(parsed_profiler_entry)
 
-        return method_profiles
+        sorted_methods_by_totaltime = sorted(
+            profiling_results,
+            key=lambda x: x['totaltime'],
+            reverse=True,
+        )
+
+        slowest_methods_profiles = dict(
+            sorted_methods_by_totaltime[:num_of_slowest_methods],
+        )
+
+        totaltime = sum(
+            [
+                entry.inlinetime
+                for entry in profiling_results
+            ]
+        )
+
+        profiling_results = {
+            'slowest_methods_profiles': slowest_methods_profiles,
+            'total_seconds': totaltime,
+        }
+
+        return slowest_methods_profiles

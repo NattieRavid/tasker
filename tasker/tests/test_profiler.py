@@ -85,7 +85,7 @@ class ProfilerTestCase(
             msg='profiling regex failed'
         )
 
-    def test_profiling_result(
+    def test_profiling_results(
         self,
     ):
         methods_count = 5
@@ -107,7 +107,7 @@ class ProfilerTestCase(
         )
 
         profiling_statistics = list(
-            self.profiler.profiling_result(
+            self.profiler.profiling_results(
                 num_of_slowest_methods=methods_count,
             )
         )

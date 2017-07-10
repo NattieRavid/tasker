@@ -80,7 +80,7 @@ class Executor:
             work_profiler.stop()
 
             self.worker_profiling_handler(
-                profiling_data_generator=work_profiler.profiling_result(
+                profiling_data=work_profiler.profiling_results(
                     num_of_slowest_methods=self.worker_config['profiler']['num_of_slowest_methods_to_log'],
                 ),
                 args=task['args'],

@@ -637,7 +637,7 @@ class Worker:
 
     def profiling_handler(
         self,
-        profiling_data_generator,
+        profiling_data,
         args,
         kwargs,
     ):
