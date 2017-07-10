@@ -233,7 +233,7 @@ class Worker:
                 'on_retry': self._on_retry,
                 'on_max_retries': self._on_max_retries,
                 'report_complete': self.report_complete,
-                'profiling_handler': self.profiling_handler,
+                'worker_profiling_handler': self.profiling_handler,
                 'worker_config': self.config,
                 'worker_name': self.name,
                 'worker_logger': self.logger,
