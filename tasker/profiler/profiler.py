@@ -25,7 +25,7 @@ class Profiler:
 
         for profiler_entry in self.profiler.getstats():
             if isinstance(
-                profiler_entry,
+                profiler_entry.code,
                 str,
             ):
                 method_name = profiler_entry.code
@@ -33,7 +33,7 @@ class Profiler:
                 line_number = ''
             else:
                 method_name = profiler_entry.code.co_name
-                filename = profiler_entry.co_filename
+                filename = profiler_entry.code.co_filename
                 line_number = profiler_entry.code.co_firstlineno
 
             parsed_profiler_entry = {
@@ -49,17 +49,15 @@ class Profiler:
 
         sorted_methods_by_totaltime = sorted(
             profiling_results,
-            key=lambda x: x['totaltime'],
+            key=lambda x: x['total_time'],
             reverse=True,
         )
 
-        slowest_methods_profiles = dict(
-            sorted_methods_by_totaltime[:num_of_slowest_methods],
-        )
+        slowest_methods_profiles = sorted_methods_by_totaltime[:num_of_slowest_methods]
 
         totaltime = sum(
             [
-                entry.inlinetime
+                entry['inline_time']
                 for entry in profiling_results
             ]
         )
@@ -69,4 +67,4 @@ class Profiler:
             'total_seconds': totaltime,
         }
 
-        return slowest_methods_profiles
+        return profiling_results
