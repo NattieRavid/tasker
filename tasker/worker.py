@@ -264,6 +264,7 @@ class Worker:
                 exception=exception,
                 exception_traceback=exception_traceback,
             )
+            raise exception
         finally:
             self.executor.end_working()
 
