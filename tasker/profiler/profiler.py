@@ -24,17 +24,25 @@ class Profiler:
         task_profiling_id = str(uuid.uuid4())
 
         for profiler_entry in self.profiler.getstats():
-            if isinstance(
+            external_library_code = isinstance(
                 profiler_entry.code,
                 str,
-            ):
+            )
+
+            if external_library_code:
                 method_name = profiler_entry.code
                 filename = ''
                 line_number = ''
+                raw = profiler_entry.code
             else:
                 method_name = profiler_entry.code.co_name
                 filename = profiler_entry.code.co_filename
                 line_number = profiler_entry.code.co_firstlineno
+                raw = '{filename} | {line_number} | {method}'.format(
+                    filename=filename,
+                    line_number=line_number,
+                    method=method_name,
+                )
 
             parsed_profiler_entry = {
                 'method': method_name,
@@ -42,6 +50,7 @@ class Profiler:
                 'line_number': line_number,
                 'inline_time': profiler_entry.inlinetime,
                 'total_time': profiler_entry.totaltime,
+                'raw': raw,
                 'task_profiling_id': task_profiling_id,
             }
 
@@ -64,7 +73,7 @@ class Profiler:
 
         profiling_results = {
             'slowest_methods_profiles': slowest_methods_profiles,
-            'total_seconds': totaltime,
+            'task_time_duration': totaltime,
         }
 
         return profiling_results
